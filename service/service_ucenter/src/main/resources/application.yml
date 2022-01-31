@@ -1,0 +1,27 @@
+server:
+  port: 8160
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: 200265
+    url: jdbc:mysql://localhost:3306/guli
+  application:
+    name: service-ucenter
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.134.128:8848
+  redis:
+    host: 192.168.134.128
+    port: 6379
+
+appid: wxed9954c01bb89b47
+appsecret: a7482517235173ddb4083788de60b90e
+redirecturl: http://localhost:8160/api/ucenter/wx/callback
+
+mybatis:
+  mapper-locations: classpath:/mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true

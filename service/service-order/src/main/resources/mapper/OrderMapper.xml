@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyx.dao.OrderDao">
+
+    <sql id="common">id,order_no,course_id,course_title,course_cover,teacher_name,member_id,nickname,email,total_fee,pay_type,status,is_deleted,gmt_create,gmt_modified</sql>
+
+    <insert id="addOrder">
+        insert into t_order(<include refid="common"/>)
+         values (#{id},#{orderNo},#{courseId},#{courseTitle},#{courseCover},#{teacherName},#{memberId},#{nickname},#{email},#{totalFee},#{payType},#{status},0,current_timestamp,current_timestamp)
+    </insert>
+
+    <update id="updateById">
+        update t_order
+        <set>
+            <if test="order_no != null and order_no != ''">
+                order_no = #{orderNo}
+            </if>
+            <if test="course_id != null and course_id != ''">
+                ,course_id = #{courseId}
+            </if>
+            <if test="course_title != null and course_title != ''">
+                ,course_title = #{courseTitle}
+            </if>
+            <if test="teacher_name != null and teacher_name != ''">
+                ,teacher_name = #{teacherName}
+            </if>
+            <if test="member_id != null and member_id != ''">
+                ,member_id = #{memberId}
+            </if>
+            <if test="nickname != null and nickname != ''">
+                ,nickname = #{nickname}
+            </if>
+            <if test="email != null and email != ''">
+                ,email = #{email}
+            </if>
+            <if test="total_fee != null and total_fee != ''">
+                ,total_fee = #{totalFee}
+            </if>
+            <if test="pay_type != null and pay_type != ''">
+                ,pay_type = #{payType}
+            </if>
+            <if test="status != null and status != ''">
+                ,status = #{status}
+            </if>
+                ,is_deleted = 0
+            <if test="gmt_create != null and gmt_create != ''">
+                ,gmt_create = #{gmtCreate}
+            </if>
+            <if test="gmt_modified != null and gmt_modified != ''">
+                ,gmt_modified = current_timestamp
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="getOrderByOrderId" resultType="com.lyx.entity.Order">
+        select <include refid="common"/> from t_order where order_no = #{orderNo} and is_deleted = 0
+    </select>
+</mapper>

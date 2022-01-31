@@ -1,0 +1,47 @@
+server:
+  port: 8100
+spring:
+  application:
+    name: service-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.134.128:8848
+#使用服务发现路由
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: service-edu
+          uri: lb://service-edu
+          predicates:
+          - Path=/eduservice/** # 路径匹配
+        - id: service-cms
+          uri: lb://service-cms
+          predicates:
+          - Path=/educms/**
+        - id: service-mail
+          uri: lb://service-mail
+          predicates:
+          - Path=/edumail/**
+        - id: service-oss
+          uri: lb://service-oss
+          predicates:
+          - Path=/eduoss/**
+        - id: service-ucenter
+          uri: lb://service-ucenter
+          predicates:
+          - Path=/educenter/**
+        - id: service-vod
+          uri: lb://service-vod
+          predicates:
+          - Path=/eduvod/**
+        - id: service-acl
+          uri: lb://service-acl
+          predicates:
+          - Path=/eduacl/**
+        - id: service-order
+          uri: lb://service-order
+          predicates:
+          - Path=/eduorder/**

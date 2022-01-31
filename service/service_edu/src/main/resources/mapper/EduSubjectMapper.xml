@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyx.dao.EduSubjectDao">
+    <sql id="common">id,title,parent_id,sort,gmt_create,gmt_modified</sql>
+
+    <insert id="saveFirstSubject">
+        insert into edu_subject (<include refid="common"/>) values(#{id},#{title},'0',#{sort},CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+    </insert>
+
+    <insert id="saveSecondSubject">
+        insert into edu_subject (<include refid="common"/>) values(#{id},#{title},#{parentId},#{sort},CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+    </insert>
+
+    <select id="findFirstSubject" resultType="com.lyx.entity.EduSubject">
+        select <include refid="common"/> from edu_subject where title = #{name} and parent_id = '0'
+    </select>
+    <select id="findSecondSubject" resultType="com.lyx.entity.EduSubject">
+        select <include refid="common"/> from edu_subject where title = #{name} and parent_id = #{pid}
+    </select>
+
+    <resultMap id="findAllSubjectByTree" type="com.lyx.vo.subject.FirstSubjectVo">
+        <id property="id" column="eid"></id>
+        <result property="title" column="etitle"></result>
+        <collection property="children" ofType="com.lyx.vo.subject.SecondSubjectVo">
+            <id property="id" column="sid"></id>
+            <result property="title" column="stitle"></result>
+        </collection>
+    </resultMap>
+
+    <select id="findAll" resultMap="findAllSubjectByTree">
+        select e.id eid,e.title etitle,s.id sid,s.title stitle from edu_subject e join (select * from edu_subject where id !=0) s where e.id = s.parent_id
+    </select>
+
+</mapper>

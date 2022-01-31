@@ -1,0 +1,36 @@
+server:
+  port: 8001
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: 200265
+    url: jdbc:mysql://localhost:3306/guli
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.134.128:8848
+  application:
+    name: service-edu
+
+  redis:
+    host: 192.168.134.128
+    port: 6379
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:/mapper/*.xml
+feign:
+  httpclient:
+    connection-timeout: 10000
+  hystrix:
+    enabled: true

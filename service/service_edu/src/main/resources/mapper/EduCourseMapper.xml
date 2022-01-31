@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyx.dao.EduCourseDao">
+    <sql id="common">id,teacher_id,subject_id,subject_parent_id,title,price,lesson_num,cover,gmt_create,gmt_modified</sql>
+
+    <sql id="all">id,teacher_id,subject_id,subject_parent_id,title,price,lesson_num,cover,buy_count,view_count,status,gmt_create,gmt_modified</sql>
+
+    <insert id="addCourse">
+        insert into edu_course(<include refid="common"/>)
+        values(#{id},#{teacherId},#{subjectId},#{subjectParentId},#{title},#{price},#{lessonNum},#{cover},current_timestamp,current_timestamp)
+    </insert>
+
+    <insert id="addCourseViewCount">
+        update edu_course set view_count = view_count+1 where id = #{id}
+    </insert>
+
+    <update id="updateCourse">
+        update edu_course set
+        <if test="teacherId != null and teacherId != ''">
+            teacher_id = #{teacherId}
+        </if>
+        <if test="subjectId != null and subjectId != ''">
+            ,subject_id = #{subjectId}
+        </if>
+        <if test="subjectParentId != null and subjectParentId != ''">
+            ,subject_parent_id = #{subjectParentId}
+        </if>
+        <if test="title != null and title != ''">
+            ,title = #{title}
+        </if>
+        <if test="price != null and price != ''">
+            ,price = #{price}
+        </if>
+        <if test="lessonNum != null and lessonNum != ''">
+            ,lesson_num = #{lessonNum}
+        </if>
+        <if test="cover != null and cover != ''">
+            ,cover = #{cover}
+        </if>
+            ,gmt_modified = current_timestamp
+            where id = #{id}
+    </update>
+
+    <update id="publishCourse">
+        update edu_course set status = 'Normal',gmt_modified = current_timestamp where id = #{id}
+    </update>
+
+    <update id="deleteCourseById">
+        update edu_course set is_deleted = '1' where id = #{id}
+    </update>
+
+    <select id="publishById" resultType="com.lyx.vo.course.CoursePublishVo">
+        select ec.id,ec.title,ec.cover,ec.price,ec.lesson_num,ecd.description,et.name,es1.title oneSubject,es2.title twoSubject
+         from edu_course ec
+          join edu_course_description ecd on ec.id = ecd.id
+           join edu_teacher et on ec.teacher_id = et.id
+            join edu_subject es1 on ec.subject_parent_id = es1.id
+             join edu_subject es2 on ec.subject_id = es2.id
+              where ec.id = ${id}
+    </select>
+
+    <resultMap id="getInfoBackOne" type="com.lyx.vo.chapter.CourseBackVo">
+        <result property="title" column="etitle"></result>
+        <result property="cover" column="cover"></result>
+        <result property="description" column="description"></result>
+        <result property="lessonNum" column="lesson_num"></result>
+        <result property="price" column="price"></result>
+        <result property="teacherId" column="teacher_id"></result>
+        <result property="subjectId" column="subject_id"></result>
+        <result property="subjectParentId" column="subject_parent_id"></result>
+        <collection property="teacherList" ofType="com.lyx.vo.chapter.TeacherListBackVo">
+            <id property="id" column="rid"></id>
+            <result property="name" column="name"></result>
+        </collection>
+        <collection property="subjectList" resultMap="getInfoBackTwo" ofType="com.lyx.vo.chapter.SubjectOneBackVo" javaType="java.util.List" ></collection>
+    </resultMap>
+
+    <resultMap id="getInfoBackTwo" type="com.lyx.vo.chapter.SubjectOneBackVo">
+        <id property="id" column="sid"></id>
+        <result property="title" column="stitle"></result>
+        <collection property="children" javaType="java.util.List" resultMap="getInfoBackThree" ofType="com.lyx.vo.chapter.SubjectTwoBackVo"></collection>
+    </resultMap>
+
+    <resultMap id="getInfoBackThree" type="com.lyx.vo.chapter.SubjectTwoBackVo">
+        <id property="id" javaType="String" column="fid"></id>
+        <result property="title" javaType="String" column="ftitle"></result>
+    </resultMap>
+
+
+    <select id="getById" resultMap="getInfoBackOne">
+        select e.title etitle,e.price,e.lesson_num,e.cover,s.id sid,s.title stitle,f.id fid,f.title ftitle,r.name,r.id rid,n.description
+         from edu_course e
+          join (select * from edu_subject where parent_id =0) s on e.subject_parent_id = s.id
+		   join (select * from edu_subject where parent_id!=0) f on e.subject_id = f.id
+            join edu_teacher r on r.id = e.teacher_id
+             join edu_course_description n on e.id = n.id
+              where e.id = #{id}
+    </select>
+
+        <select id="getAllCourseByPage" resultType="com.lyx.entity.EduCourse">
+            select <include refid="all"/> from edu_course
+            where is_deleted = 0
+            <if test="title != null and title != ''">
+                and title like concat('%',#{title},'%')
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="begin != null and begin != ''">
+                and gmt_create >= #{begin}
+            </if>
+            <if test="end != null and end != ''">
+                and gmt_modified &lt;= #{end}
+            </if>
+        </select>
+
+    <select id="getHotCourse" resultType="com.lyx.vo.course.CourseHotVo">
+        select e.id,e.title,e.price,e.lesson_num,e.cover,e.buy_count,e.view_count,(select count(*) from edu_comment where course_id = e.id) commentCount
+         from edu_course e
+          where e.is_deleted = '0'
+           order by e.id desc limit 8
+    </select>
+
+    <select id="findByTeacherId" resultType="com.lyx.entity.EduCourse">
+        select <include refid="all"/> from edu_course where teacher_id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="getCourseFrontList" resultType="com.lyx.vo.course.CourseHotVo">
+        select e.id,e.title,e.price,e.lesson_num,e.cover,
+        e.buy_count,e.view_count,(select count(*) from edu_comment where course_id = e.id) commentCount
+        from edu_course e
+        where e.is_deleted = 0
+        <if test="subjectParentId != null and subjectParentId != ''">
+            and e.subject_parent_id = #{subjectParentId}
+        </if>
+        <if test="subjectId != null and subjectId != ''">
+            and e.subject_id = #{subjectId}
+        </if>
+        <if test="buyCount != null and buyCount != ''">
+            order by e.buy_count
+            <if test="gmtCreate != null and gmtCreate != ''">
+                e.gmt_create
+            </if>
+            <if test="price != null and price != ''">
+                e.price
+            </if>
+            desc
+        </if>
+    </select>
+
+    <select id="getCourseInfoById" resultType="com.lyx.vo.course.CourseInfoVo">
+    select e.id,e.title,e.price,e.lesson_num,e.buy_count,e.view_count,e.cover,r.avatar,r.id teacherId,r.name,r.intro,r.avatar,d.description from edu_course e
+     left join edu_teacher r on e.teacher_id = r.id
+      left join edu_course_description d on e.id = d.id
+       where e.id = #{id}
+    </select>
+</mapper>

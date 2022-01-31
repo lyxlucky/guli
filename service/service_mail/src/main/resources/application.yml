@@ -1,0 +1,12 @@
+server:
+  port: 8005
+spring:
+  application:
+    name: service-mail
+  redis:
+    host: 192.168.134.128
+    port: 6379
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.134.128:8848

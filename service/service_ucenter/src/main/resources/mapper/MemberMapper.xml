@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lyx.dao.MemberDao">
+
+    <sql id="common">id,openid,email,password,nickname,sex,age,avatar,sign</sql>
+
+    <insert id="register">
+        insert into ucenter_member values
+         (#{id},#{openId},#{email},MD5(#{password}),#{nickname},#{sex},#{age},#{avatar},#{sign},0,0,current_timestamp,current_timestamp)
+    </insert>
+
+    <insert id="addUser">
+        insert into ucenter_member(
+        id
+        <if test="openId != null and openId != ''">,openid</if>
+        <if test="email != null and email != ''">,email</if>
+        <if test="password != null and password != ''">,password</if>
+        <if test="nickname != null and nickname != ''">,nickname</if>
+        <if test="sex != null and sex != ''">,sex</if>
+        <if test="age != null and age != ''">,age</if>
+        <if test="avatar != null and avatar != ''">,avatar</if>
+        <if test="sign != null and sign != ''">,sign</if>
+        ,gmt_create
+        ,gmt_modified
+        ) values (
+        #{id}
+        <if test="openId != null and openId != ''">,#{openId}</if>
+        <if test="email != null and email != ''">,#{email}</if>
+        <if test="password != null and password != ''">,#{password}</if>
+        <if test="nickname != null and nickname != ''">,#{nickname}</if>
+        <if test="sex != null and sex != ''">,#{sex}</if>
+        <if test="age != null and age != ''">,#{age}</if>
+        <if test="avatar != null and avatar != ''">,#{avatar}</if>
+        <if test="sign != null and sign != ''">,#{sign}</if>
+        ,current_timestamp
+        ,current_timestamp
+        )
+    </insert>
+
+    <select id="login" resultType="com.lyx.entity.Member">
+        select <include refid="common"/> from ucenter_member where email = #{email} and password = #{password}
+         and is_disabled = 0 and is_deleted = 0
+    </select>
+
+    <select id="findMobileRepeat" resultType="java.lang.Integer">
+        select count(*) from ucenter_member where email = #{email} and is_disabled = 0 and is_deleted = 0
+    </select>
+    <select id="getById" resultType="com.lyx.entity.Member">
+        select <include refid="common"/> from ucenter_member where id = #{id} and is_disabled = 0 and is_deleted = 0
+    </select>
+
+    <select id="getOpenId" resultType="com.lyx.entity.Member">
+        select <include refid="common"/> from ucenter_member where openid = #{openId}
+    </select>
+</mapper>

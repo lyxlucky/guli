@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyx.dao.EduChapterDao">
+
+    <sql id="common">id,course_id,title,sort,gmt_create,gmt_modified</sql>
+
+    <update id="updateChapter">
+        update edu_chapter set
+        <if test="title != null and title != ''">
+            title = #{title}
+        </if>
+        <if test="sort != null and sort != ''">
+            ,sort = #{sort}
+        </if>
+            ,gmt_modified = current_timestamp
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from edu_chapter where id = #{id}
+    </delete>
+
+    <resultMap id="AllChapter" type="com.lyx.vo.chapter.ChapterVo">
+        <id property="id" column="rid"></id>
+        <result property="title" column="rtitle"></result>
+        <collection property="children" ofType="com.lyx.vo.chapter.VideoVo">
+            <id property="id" column="vid"></id>
+            <result property="title" column="vtitle"></result>
+        </collection>
+    </resultMap>
+
+    <insert id="addChapter">
+        insert into edu_chapter (<include refid="common"/>)
+         values (#{id},#{courseId},#{title},#{sort},current_timestamp,current_timestamp)
+    </insert>
+
+    <select id="getFirstChapterAndSecondChapter" resultMap="AllChapter">
+        select r.id rid,r.title rtitle,o.id vid,o.title vtitle
+         from edu_chapter r join edu_video o where r.course_id = #{id}
+          and r.id = o.chapter_id
+    </select>
+
+    <select id="getChapterById" resultType="com.lyx.entity.EduChapter">
+        select id,title,sort from edu_chapter where id = #{id}
+    </select>
+
+    <select id="getChapterByCourseId" resultType="com.lyx.entity.EduChapter">
+        select <include refid="common"/> from edu_chapter where course_id = #{id}
+    </select>
+
+    <select id="getChaptersByCourseId" resultType="com.lyx.entity.EduChapter">
+        select <include refid="common"/> from edu_chapter where course_id = #{id}
+    </select>
+
+</mapper>

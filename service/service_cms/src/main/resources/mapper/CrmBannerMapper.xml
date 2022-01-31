@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyx.dao.CrmBannerDao">
+
+    <sql id="common">id,title,image_url,link_url,sort,is_deleted,gmt_create,gmt_modified</sql>
+
+    <insert id="addBanner">
+        insert into crm_banner(<include refid="common"/>)
+         values(#{id},#{title},#{imageUrl},#{linkUrl},#{sort},#{isDeleted},current_timestamp,current_timestamp)
+    </insert>
+
+    <update id="updateBanner">
+        update crm_banner set
+        <if test="title != null and title != ''">
+            title = #{title}
+        </if>
+        <if test="imageUrl != null and imageUrl != ''">
+            ,image_url = #{imageUrl}
+        </if>
+        <if test="linkUrl != null and linkUrl != ''">
+            ,link_url = #{linkUrl}
+        </if>
+        <if test="sort">
+            ,sort = #{sort}
+        </if>
+            ,gmt_modified = #{gmtModified}
+        where id = #{id}
+    </update>
+
+    <update id="deleteBanner">
+        update crm_banner set is_deleted = '1' where id = #{id}
+    </update>
+
+    <select id="findAllByPage" resultType="com.lyx.entity.Banner">
+        select <include refid="common"/> from crm_banner where is_deleted = '0'
+    </select>
+
+    <select id="findById" resultType="com.lyx.entity.Banner">
+        select <include refid="common"/> from crm_banner where id = #{id} and is_deleted = '0'
+    </select>
+
+    <select id="getAll" resultType="com.lyx.entity.Banner">
+        select <include refid="common"/> from crm_banner where is_deleted = '0' order by id desc limit 2
+    </select>
+
+</mapper>

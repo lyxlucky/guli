@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyx.dao.EduTeacherDao">
+
+    <sql id="common">id,name,intro,career,level,avatar,sort,is_deleted,gmt_create,gmt_modified</sql>
+
+    <insert id="addTeacher">
+        insert into edu_teacher(<include refid="common"/>)
+        values(#{id},#{name},#{intro},#{career},#{level},#{avatar},#{sort},false,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+    </insert>
+
+    <update id="deleteByLogic">
+        update edu_teacher set is_deleted = 1 where id = #{id}
+    </update>
+
+    <update id="updateTeacher">
+        update edu_teacher set
+        <if test="teacher.name!=null and teacher.name != ''">
+            name = #{teacher.name}
+        </if>
+        <if test="teacher.intro!= null and teacher.intro != ''">
+            ,intro = #{teacher.intro}
+        </if>
+        <if test="teacher.career != null and teacher.career != ''">
+            ,career = #{teacher.career}
+        </if>
+        <if test="teacher.level != null and teacher.level != ''">
+            ,level = #{teacher.level}
+        </if>
+        <if test="teacher.avatar != null and teacher.avatar != ''">
+            ,avatar = #{teacher.avatar}
+        </if>
+        <if test="teacher.sort != null and teacher.sort != ''">
+            ,sort = #{teacher.sort}
+        </if>
+            ,gmt_modified = current_timestamp
+        where id = #{id}
+    </update>
+
+    <select id="findByPage" resultType="com.lyx.entity.EduTeacher">
+        select <include refid="common"></include> from edu_teacher
+        where is_deleted = 0
+        <if test="name != null and name != ''">
+            and name like concat('%',#{name},'%')
+        </if>
+        <if test="level != null and level != ''">
+            and level = #{level}
+        </if>
+        <if test="begin != null and begin != ''">
+            and gmt_create >= #{begin}
+        </if>
+        <if test="end != null and end != ''">
+            and gmt_modified &lt;= #{end}
+        </if>
+    </select>
+    <select id="getById" resultType="com.lyx.entity.EduTeacher">
+        select <include refid="common"></include> from edu_teacher where id = #{id}
+    </select>
+    <select id="findAll" resultType="com.lyx.entity.EduTeacher">
+        select <include refid="common"/> from edu_teacher where is_deleted = 0
+    </select>
+
+    <select id="getHotTeacher" resultType="com.lyx.entity.EduTeacher">
+        select <include refid="common"/> from edu_teacher where is_deleted = 0 order by id desc limit 4
+    </select>
+
+    <select id="getFrontTeacher" resultType="com.lyx.entity.EduTeacher">
+        select <include refid="common"/> from edu_teacher where is_deleted = 0 order by id desc
+    </select>
+
+    <select id="getTeacherInfoById" resultType="com.lyx.entity.EduTeacher">
+        select <include refid="common"/> from edu_teacher where id = #{id} and is_deleted = 0
+    </select>
+</mapper>

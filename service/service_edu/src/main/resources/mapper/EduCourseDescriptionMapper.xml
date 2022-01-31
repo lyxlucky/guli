@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyx.dao.EduCourseDescriptionDao">
+
+    <sql id="common">id,description,gmt_create,gmt_modified</sql>
+
+    <insert id="addCourseDescription">
+        insert into edu_course_description(<include refid="common"/>)
+         values (#{id},#{description},current_timestamp,current_timestamp)
+    </insert>
+
+    <update id="updateCourseDescription">
+        update edu_course_description
+         set description = #{description},
+          gmt_modified = current_timestamp
+           where id = #{id}
+    </update>
+
+</mapper>

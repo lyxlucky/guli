@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyx.dao.PayLogDao">
+
+    <sql id="common">
+        id,order_no,pay_time,total_fee,transaction_id,trade_state,pay_type,attr,is_deleted,gmt_create,gmt_modified
+    </sql>
+
+    <insert id="addPayLog">
+        insert into t_pay_log(<include refid="common"/>)
+         values (#{id},#{orderNo},#{payTime},#{totalFee},#{transactionId},#{tradeState},#{payType},#{attr},#{is_deleted},current_timestamp,current_timestamp)
+    </insert>
+
+</mapper>

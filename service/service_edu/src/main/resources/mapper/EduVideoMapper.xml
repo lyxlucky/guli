@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyx.dao.EduVideoDao">
+
+    <sql id="common">id,course_id,chapter_id,title,video_source_id,video_original_name,sort,play_count,is_free,duration,status,size,version,gmt_create,gmt_modified</sql>
+
+    <insert id="addVideo">
+        insert into edu_video(id,course_id,chapter_id,video_source_id,video_original_name,title,gmt_create,gmt_modified)
+         values (#{id},#{courseId},#{chapterId},#{videoSourceId},#{videoOriginalName},#{title},current_timestamp,current_timestamp)
+    </insert>
+
+    <update id="updateVideo">
+        update edu_video
+         set title = #{title},sort = #{sort},
+        <if test="videoSourceId != null and videoSourceId != ''">
+            set video_source_id = #{videoSourceId}
+        </if>
+        gmt_modified = current_timestamp where id = #{id}
+    </update>
+
+    <delete id="deleteVideo">
+        delete from edu_video where id = #{id}
+    </delete>
+
+    <select id="getChapterById" resultType="com.lyx.entity.EduVideo">
+        select <include refid="common"/> from edu_video where chapter_id = #{id}
+    </select>
+
+    <select id="getChapterVideo" resultType="com.lyx.entity.EduVideo">
+        select <include refid="common"/> from edu_video where chapter_id = #{id}
+    </select>
+
+    <select id="getVideoById" resultType="com.lyx.entity.EduVideo">
+        select <include refid="common"/> from edu_video where id = #{id}
+    </select>
+
+    <select id="getVideoSourceIdByVideoId" resultType="com.lyx.entity.EduVideo">
+        select video_source_id from edu_video where id = #{id}
+    </select>
+</mapper>
